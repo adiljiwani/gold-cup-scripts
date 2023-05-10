@@ -13,6 +13,7 @@ from selenium.webdriver.remote.file_detector import LocalFileDetector
 
 """
     example image_url_tuples = [
+        "FCB Barcelona",
         (
             "https://iicanada.org/system/files/webform/306686-player10-headshot.jpg",
             "https://iicanada.org/system/files/webform/306686-player10-govId.jpg",
@@ -22,6 +23,10 @@ from selenium.webdriver.remote.file_detector import LocalFileDetector
     ]
 """
 def download_images(image_url_tuples):
+    team_name = image_url_tuples[0]
+    team_category = image_url_tuples[1]
+    image_url_tuples = image_url_tuples[2:]
+
     username = os.environ.get('IICANADA_USERNAME')
     password = os.environ.get('IICANADA_PASSWORD')
 
@@ -52,10 +57,13 @@ def download_images(image_url_tuples):
         full_name = image_url_tuple[2]
         dob = image_url_tuple[3]
 
-        if not os.path.exists("data"):
-            os.makedirs("data")
+        if not os.path.exists(team_name):
+            os.makedirs(team_name)
 
-        folder_path = f"data/{str(i)}"
+        if not os.path.exists(f"{team_name}-{category}/data"):
+            os.makedirs(f"{team_name}-{category}/data")
+
+        folder_path = f"{team_name}-{category}/data/{str(i)}"
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -76,4 +84,4 @@ def download_images(image_url_tuples):
             driver.get(image_url)
 
             image_prefix = 'headshot' if j == 0 else 'id'
-            driver.save_screenshot(f"data/{i}/{image_prefix}.jpg")
+            driver.save_screenshot(f"{team_name}/data/{i}/{image_prefix}.jpg")

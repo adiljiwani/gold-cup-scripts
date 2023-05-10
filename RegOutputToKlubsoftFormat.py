@@ -3,19 +3,40 @@ import requests
 from datetime import datetime
 from DownloadImagesFromIICanada import download_images
 
-input_file = 'reg_M35.xlsx - ETOBICOKE UNITED.csv'
-output_file = f'{input_file}-output.csv'
+input_file = 'gold_cup_2023__team_registration.csv'
+
+# Indexes at which the data begins. The Indexes before this are not useful.
+column_start_index = 9 
+row_start_index = 3
 
 # Create a list to store the processed data
 processed_data = []
 
+def convert_date_of_birth(date_str):
+    # check the input format
+    if '/' in date_str:
+        # convert from '%m/%d/%Y' format to '%Y/%m/%d' format
+        date_obj = datetime.strptime(date_str, '%m/%d/%Y')
+        new_date_str = datetime.strftime(date_obj, '%Y/%m/%d')
+    elif '-' in date_str:
+        # convert from '%Y-%m-%d' format to '%Y/%m/%d' format
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        new_date_str = datetime.strftime(date_obj, '%Y/%m/%d')
+    else:
+        # invalid format
+        raise ValueError("Invalid date format. Use either '%m/%d/%Y' or '%Y-%m-%d'.")
+    return new_date_str
+
 # Read the input CSV file
 with open(input_file, 'r') as file:
     reader = csv.reader(file)
-    # Skip the header row
-    next(reader)
-    
+
+    # Skip useless rows
+    for row in range(row_start_index):
+        next(reader)
+
     for row in reader:
+        row = row[column_start_index:]
         # Extract the required values from the input row
         team_name = row[0]
         category = row[1]
@@ -56,15 +77,16 @@ with open(input_file, 'r') as file:
             headshot = row[i + 12]
             govt_id = row[i + 14]
             waiver = row[i + 16]
-            players.append({
-                'Full Name': player_full_name,
-                'Date of Birth': player_date_of_birth,
-                'Email Address': player_email_address,
-                'Phone Number': player_phone_number,
-                'Headshot': headshot,
-                'Government Id': govt_id,
-                'Waiver': waiver,
-            })
+            if player_full_name not in ['','X']:
+                players.append({
+                    'Full Name': player_full_name,
+                    'Date of Birth': player_date_of_birth,
+                    'Email Address': player_email_address,
+                    'Phone Number': player_phone_number,
+                    'Headshot': headshot,
+                    'Government Id': govt_id,
+                    'Waiver': waiver,
+                })
         print(players)
         # Create a dictionary to store the processed data for this row
         processed_row = {
@@ -83,31 +105,19 @@ with open(input_file, 'r') as file:
         # Append the processed row to the list of processed data
         processed_data.append(processed_row)
 
-def convert_date_of_birth(date_str):
-    # check the input format
-    if '/' in date_str:
-        # convert from '%m/%d/%Y' format to '%Y/%m/%d' format
-        date_obj = datetime.strptime(date_str, '%m/%d/%Y')
-        new_date_str = datetime.strftime(date_obj, '%Y/%m/%d')
-    elif '-' in date_str:
-        # convert from '%Y-%m-%d' format to '%Y/%m/%d' format
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-        new_date_str = datetime.strftime(date_obj, '%Y/%m/%d')
-    else:
-        # invalid format
-        raise ValueError("Invalid date format. Use either '%m/%d/%Y' or '%Y-%m-%d'.")
-    return new_date_str
+        image_url_data = [(player['Headshot'], player['Government Id'], player['Full Name'], convert_date_of_birth(player['Date of Birth'])) for player in players]
+        image_url_data.insert(0, team_name)
+        image_url_data.insert(1, category)
+        download_images(image_url_data)
 
+        output_file = f'{team_name}-{category}-output.csv'
 
-image_urls = [(player['Headshot'], player['Government Id'], player['Full Name'], convert_date_of_birth(player['Date of Birth'])) for player in players]
-download_images(image_urls)
+        with open(output_file, 'w', newline='') as file:
+            writer = csv.writer(file)
 
-with open(output_file, 'w', newline='') as file:
-    writer = csv.writer(file)
+            writer.writerow(['Teamname', 'TeamShortName', 'PlayerName', 'email'])
+            for player in players:
+                player_full_name = player['Full Name']
 
-    writer.writerow(['Teamname', 'TeamShortName', 'PlayerName', 'email'])
-    for player in players:
-        player_full_name = player['Full Name']
-
-        writer.writerow([processed_row['Team Name'], 'FCB', player_full_name, player['Email Address']])
-print(processed_data)
+                writer.writerow([processed_row['Team Name'], 'FCB', player_full_name, player['Email Address']])
+        print(processed_data)
