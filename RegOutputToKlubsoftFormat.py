@@ -79,7 +79,7 @@ with open(input_file, 'r') as file:
             waiver = row[i + 16]
             if player_full_name not in ['','X']:
                 players.append({
-                    'Full Name': player_full_name,
+                    'Full Name': player_full_name + " " + player_date_of_birth,
                     'Date of Birth': player_date_of_birth,
                     'Email Address': player_email_address,
                     'Phone Number': player_phone_number,

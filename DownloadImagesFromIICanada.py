@@ -24,7 +24,7 @@ from selenium.webdriver.remote.file_detector import LocalFileDetector
 """
 def download_images(image_url_tuples):
     team_name = image_url_tuples[0]
-    team_category = image_url_tuples[1]
+    category = image_url_tuples[1]
     image_url_tuples = image_url_tuples[2:]
 
     username = os.environ.get('IICANADA_USERNAME')
@@ -60,10 +60,11 @@ def download_images(image_url_tuples):
         if not os.path.exists(team_name):
             os.makedirs(team_name)
 
-        if not os.path.exists(f"{team_name}-{category}/data"):
-            os.makedirs(f"{team_name}-{category}/data")
+        data_path = f"{team_name}-{category}/data"
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
 
-        folder_path = f"{team_name}-{category}/data/{str(i)}"
+        folder_path = f"{data_path}/{str(i)}"
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -84,4 +85,4 @@ def download_images(image_url_tuples):
             driver.get(image_url)
 
             image_prefix = 'headshot' if j == 0 else 'id'
-            driver.save_screenshot(f"{team_name}/data/{i}/{image_prefix}.jpg")
+            driver.save_screenshot(f"{data_path}/{i}/{image_prefix}.jpg")
