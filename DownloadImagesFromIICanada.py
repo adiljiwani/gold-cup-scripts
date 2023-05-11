@@ -7,9 +7,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 import time
 from selenium.webdriver.common.action_chains import ActionChains
-import requests
 import os
-from selenium.webdriver.remote.file_detector import LocalFileDetector
 
 """
     example image_url_tuples = [
@@ -22,6 +20,8 @@ from selenium.webdriver.remote.file_detector import LocalFileDetector
         )
     ]
 """
+
+
 def download_images(image_url_tuples):
     team_name = image_url_tuples[0]
     category = image_url_tuples[1]
@@ -72,7 +72,6 @@ def download_images(image_url_tuples):
             file.write(full_name)
             file.write('\n')
             file.write(dob)
-
 
         for j, image_url in enumerate([headshot, govt_id]):
             # Send a keyboard shortcut to open a new tab

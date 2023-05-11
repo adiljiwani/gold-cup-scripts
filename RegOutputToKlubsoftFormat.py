@@ -1,16 +1,16 @@
 import csv
-import requests
 from datetime import datetime
 from DownloadImagesFromIICanada import download_images
 
 input_file = 'gold_cup_2023__team_registration.csv'
 
 # Indexes at which the data begins. The Indexes before this are not useful.
-column_start_index = 9 
+column_start_index = 9
 row_start_index = 3
 
 # Create a list to store the processed data
 processed_data = []
+
 
 def convert_date_of_birth(date_str):
     # check the input format
@@ -26,6 +26,7 @@ def convert_date_of_birth(date_str):
         # invalid format
         raise ValueError("Invalid date format. Use either '%m/%d/%Y' or '%Y-%m-%d'.")
     return new_date_str
+
 
 # Read the input CSV file
 with open(input_file, 'r') as file:
@@ -49,7 +50,7 @@ with open(input_file, 'r') as file:
         team_manager_phone_number = row[8]
         num_coaches = 2
         coaches = []
-        for i in range(10, 10 + int(num_coaches)*5, 5):
+        for i in range(10, 10 + int(num_coaches) * 5, 5):
             coach_full_name = row[i]
             coach_date_of_birth = row[i + 1]
             coach_email_address = row[i + 2]
@@ -69,7 +70,7 @@ with open(input_file, 'r') as file:
         first_player_index = 42
         # Extract the player data
         players = []
-        for i in range(42, len(row)-17,18):
+        for i in range(42, len(row) - 17, 18):
             player_full_name = row[i]
             player_date_of_birth = row[i + 1]
             player_email_address = row[i + 2]
@@ -77,7 +78,7 @@ with open(input_file, 'r') as file:
             headshot = row[i + 12]
             govt_id = row[i + 14]
             waiver = row[i + 16]
-            if player_full_name not in ['','X']:
+            if player_full_name not in ['', 'X']:
                 players.append({
                     'Full Name': player_full_name + " " + player_date_of_birth,
                     'Date of Birth': player_date_of_birth,
@@ -105,7 +106,8 @@ with open(input_file, 'r') as file:
         # Append the processed row to the list of processed data
         processed_data.append(processed_row)
 
-        image_url_data = [(player['Headshot'], player['Government Id'], player['Full Name'], convert_date_of_birth(player['Date of Birth'])) for player in players]
+        image_url_data = [(player['Headshot'], player['Government Id'], player['Full Name'],
+                           convert_date_of_birth(player['Date of Birth'])) for player in players]
         image_url_data.insert(0, team_name)
         image_url_data.insert(1, category)
         download_images(image_url_data)
