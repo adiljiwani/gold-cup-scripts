@@ -1,6 +1,6 @@
 import csv
 from datetime import datetime
-from DownloadImagesFromIICanada import download_images
+from download_images_from_iicanada import download_images
 
 input_file = 'gold_cup_2023__team_registration.csv'
 
