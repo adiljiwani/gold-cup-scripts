@@ -11,6 +11,8 @@ row_start_index = 3
 # Create a list to store the processed data
 processed_data = []
 
+data_dir_for_teams_to_validate = []
+
 
 def convert_date_of_birth(date_str):
     # check the input format
@@ -111,6 +113,8 @@ with open(input_file, 'r') as file:
         image_url_data.insert(0, team_name)
         image_url_data.insert(1, category)
         download_images(image_url_data)
+
+        data_dir_for_teams_to_validate.append(f'{team_name}-{category}')
 
         output_file = f'{team_name}-{category}-output.csv'
 
