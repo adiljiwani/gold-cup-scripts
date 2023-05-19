@@ -56,13 +56,13 @@ class TeamValidator:
 
             headshot_image = Image(f'{self.data_path}/{status["base_name"]}/headshot.jpg')
             worksheet.add_image(headshot_image, f'E{index}')
-            worksheet.column_dimensions['E'].width = headshot_image.width
+            worksheet.column_dimensions['E'].width = headshot_image.width * 0.140625
 
             govt_id_image = Image(f'{self.data_path}/{status["base_name"]}/id.jpg')
             worksheet.add_image(govt_id_image, f'F{index}')
-            worksheet.column_dimensions['F'].width = govt_id_image.width
+            worksheet.column_dimensions['F'].width = govt_id_image.width * 0.140625
 
-            worksheet.row_dimensions[index].height = max(headshot_image.height, govt_id_image.height)
+            worksheet.row_dimensions[index].height = max(headshot_image.height, govt_id_image.height) * 0.75
 
             # save the workbook
             workbook.save(f'{self.data_path}.xlsx')
