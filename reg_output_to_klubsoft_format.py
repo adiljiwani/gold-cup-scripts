@@ -72,17 +72,17 @@ with open(input_file, 'r') as file:
         first_player_index = 42
         # Extract the player data
         players = []
-        for i in range(42, len(row) - 17, 18):
+        for i in range(42, len(row) - 18, 19):
             player_full_name = row[i]
             player_date_of_birth = row[i + 1]
             player_email_address = row[i + 2]
             player_phone_number = row[i + 3]
-            headshot = row[i + 12]
-            govt_id = row[i + 14]
-            waiver = row[i + 16]
+            headshot = row[i + 13]
+            govt_id = row[i + 15]
+            waiver = row[i + 17]
             if player_full_name not in ['', 'X']:
                 players.append({
-                    'Full Name': player_full_name + " " + player_date_of_birth,
+                    'Full Name': player_full_name,
                     'Date of Birth': player_date_of_birth,
                     'Email Address': player_email_address,
                     'Phone Number': player_phone_number,
@@ -116,7 +116,7 @@ with open(input_file, 'r') as file:
 
         data_dir_for_teams_to_validate.append(f'{team_name}-{category}')
 
-        output_file = f'{team_name}-{category}-output.csv'
+        output_file = f'{team_name}-{category}/{team_name}-{category}-output.csv'
 
         with open(output_file, 'w', newline='') as file:
             writer = csv.writer(file)

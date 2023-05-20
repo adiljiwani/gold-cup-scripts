@@ -83,5 +83,6 @@ def download_images(image_url_tuples):
 
             driver.get(image_url)
 
+            time.sleep(1)
             image_prefix = 'headshot' if j == 0 else 'id'
             driver.save_screenshot(f"{data_path}/{i}/{image_prefix}.jpg")
