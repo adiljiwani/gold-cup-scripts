@@ -9,24 +9,26 @@ import time
 from selenium.webdriver.common.action_chains import ActionChains
 import os
 
-"""
-    example image_url_tuples = [
-        "FCB Barcelona",
-        (
-            "https://iicanada.org/system/files/webform/306686-player10-headshot.jpg",
-            "https://iicanada.org/system/files/webform/306686-player10-govId.jpg",
-            "hassani zamanuddin",
-            "03/19/1986"
-        )
-    ]
-"""
+base_folder = "2022"
 
 
-def download_images(image_url_tuples):
-    team_name = image_url_tuples[0]
-    category = image_url_tuples[1]
-    image_url_tuples = image_url_tuples[2:]
+class Player:
+    def __init__(self, full_name: str, dob: str, email_address: str, headshot: str, govt_id: str):
+        self.full_name = full_name
+        self.dob = dob
+        self.email_address = email_address
+        self.headshot = headshot
+        self.govt_id = govt_id
 
+
+class Team:
+    def __init__(self, name: str, category: str, players: list[Player]):
+        self.name = name
+        self.category = category
+        self.players = players
+
+
+def download_images(teams: list[Team]):
     username = os.environ.get('IICANADA_USERNAME')
     password = os.environ.get('IICANADA_PASSWORD')
 
@@ -40,49 +42,49 @@ def download_images(image_url_tuples):
     driver.get("https://iicanada.org")
 
     # Click the "Login" button
-    login_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[contains(text(),'Login')]")))
+    login_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//a[contains(text(),'Login')]")))
     login_button.click()
 
     # Enter login credentials
-    username_field = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//input[@id='edit-name']")))
+    username_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@id='edit-name']")))
     password_field = driver.find_element(By.XPATH, "//input[@id='edit-pass']")
     username_field.send_keys(username)
     password_field.send_keys(password)
 
     time.sleep(15)
 
-    for i, image_url_tuple in enumerate(image_url_tuples):
-        headshot = image_url_tuple[0]
-        govt_id = image_url_tuple[1]
-        full_name = image_url_tuple[2]
-        dob = image_url_tuple[3]
+    for team in teams:
+        if not os.path.exists(team.name):
+            os.makedirs(team.name)
 
-        if not os.path.exists(team_name):
-            os.makedirs(team_name)
-
-        data_path = f"{team_name}-{category}/data"
+        data_path = f"{base_folder}/{team.name}-{team.category}/data"
         if not os.path.exists(data_path):
             os.makedirs(data_path)
 
-        folder_path = f"{data_path}/{str(i)}"
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        for i, player in enumerate(team.players):
+            folder_path = f"{data_path}/{str(i)}"
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
 
-        with open(f"{folder_path}/info.txt", 'w') as file:
-            file.write(full_name)
-            file.write('\n')
-            file.write(dob)
+            with open(f"{folder_path}/info.txt", 'w') as file:
+                file.write(player.full_name)
+                file.write('\n')
+                file.write(player.dob)
 
-        for j, image_url in enumerate([headshot, govt_id]):
-            # Send a keyboard shortcut to open a new tab
-            action_chains = ActionChains(driver)
-            action_chains.key_down(Keys.CONTROL).send_keys('t').key_up(Keys.CONTROL).perform()
+            for j, image_url in enumerate([player.headshot, player.govt_id]):
+                if player.headshot == '' or player.govt_id == '':
+                    continue
+                # Send a keyboard shortcut to open a new tab
+                action_chains = ActionChains(driver)
+                action_chains.key_down(Keys.CONTROL).send_keys('t').key_up(Keys.CONTROL).perform()
 
-            # Switch to the newly opened tab
-            driver.switch_to.window(driver.window_handles[-1])
+                # Switch to the newly opened tab
+                driver.switch_to.window(driver.window_handles[-1])
 
-            driver.get(image_url)
+                driver.get(image_url)
 
-            time.sleep(1)
-            image_prefix = 'headshot' if j == 0 else 'id'
-            driver.save_screenshot(f"{data_path}/{i}/{image_prefix}.jpg")
+                time.sleep(1)
+                image_prefix = 'headshot' if j == 0 else 'id'
+                driver.save_screenshot(f"{data_path}/{i}/{image_prefix}.jpg")

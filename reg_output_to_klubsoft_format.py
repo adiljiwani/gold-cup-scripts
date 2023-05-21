@@ -1,8 +1,12 @@
 import csv
+import os
 from datetime import datetime
 from download_images_from_iicanada import download_images
+from download_images_from_iicanada import Player, Team
 
-input_file = 'gold_cup_2023__team_registration.csv'
+base_folder = "2022"
+
+input_file = f'{base_folder}/gold_cup_2022__team_registration.csv'
 
 # Indexes at which the data begins. The Indexes before this are not useful.
 column_start_index = 9
@@ -12,6 +16,8 @@ row_start_index = 3
 processed_data = []
 
 data_dir_for_teams_to_validate = []
+
+teams = list[Team]()
 
 
 def convert_date_of_birth(date_str):
@@ -70,27 +76,25 @@ with open(input_file, 'r') as file:
             })
 
         first_player_index = 42
-        # Extract the player data
-        players = []
-        for i in range(42, len(row) - 18, 19):
+        players = list[Player]()
+        for i in range(42, len(row) - 17, 18):
             player_full_name = row[i]
             player_date_of_birth = row[i + 1]
             player_email_address = row[i + 2]
             player_phone_number = row[i + 3]
-            headshot = row[i + 13]
-            govt_id = row[i + 15]
-            waiver = row[i + 17]
+            headshot = row[i + 12]
+            govt_id = row[i + 14]
+            waiver = row[i + 16]
             if player_full_name not in ['', 'X']:
-                players.append({
-                    'Full Name': player_full_name,
-                    'Date of Birth': player_date_of_birth,
-                    'Email Address': player_email_address,
-                    'Phone Number': player_phone_number,
-                    'Headshot': headshot,
-                    'Government Id': govt_id,
-                    'Waiver': waiver,
-                })
-        print(players)
+                player = Player(
+                    full_name=player_full_name,
+                    dob=player_date_of_birth,
+                    email_address=player_email_address,
+                    headshot=headshot,
+                    govt_id=govt_id
+                )
+                players.append(player)
+                print(vars(player))
         # Create a dictionary to store the processed data for this row
         processed_row = {
             'Team Name': team_name,
@@ -108,22 +112,23 @@ with open(input_file, 'r') as file:
         # Append the processed row to the list of processed data
         processed_data.append(processed_row)
 
-        image_url_data = [(player['Headshot'], player['Government Id'], player['Full Name'],
-                           convert_date_of_birth(player['Date of Birth'])) for player in players]
-        image_url_data.insert(0, team_name)
-        image_url_data.insert(1, category)
-        download_images(image_url_data)
+        team = Team(name=f"{team_name}-{category}", category=category, players=players)
+        teams.append(team)
 
-        data_dir_for_teams_to_validate.append(f'{team_name}-{category}')
+        data_dir_for_teams_to_validate.append(f'{base_folder}/{team_name}-{category}')
 
-        output_file = f'{team_name}-{category}/{team_name}-{category}-output.csv'
+        output_file = f'{base_folder}/{team_name}-{category}/{team_name}-{category}-output.csv'\
+
+        if not os.path.exists(f"{base_folder}/{team_name}-{category}"):
+            os.makedirs(f"{base_folder}/{team_name}-{category}")
 
         with open(output_file, 'w', newline='') as file:
             writer = csv.writer(file)
 
             writer.writerow(['Teamname', 'TeamShortName', 'PlayerName', 'email'])
             for player in players:
-                player_full_name = player['Full Name']
+                player_full_name = player.full_name
 
-                writer.writerow([processed_row['Team Name'], 'FCB', player_full_name, player['Email Address']])
-        print(processed_data)
+                writer.writerow([team.name, 'FCB', player.full_name, player.email_address])
+
+# download_images(teams=teams)

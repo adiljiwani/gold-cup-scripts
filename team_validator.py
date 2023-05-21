@@ -4,6 +4,8 @@ from openpyxl.drawing.image import Image
 import csv
 import os
 
+base_folder = "2022"
+
 
 def get_name_and_dob_for_player(info_file) -> [str, str]:
     with open(info_file, 'r') as file:
@@ -108,5 +110,5 @@ class TeamValidator:
 
 
 if __name__ == '__main__':
-    team_validator = TeamValidator("KW Warriors-B-09: Boys 12-14")
+    team_validator = TeamValidator(f"{base_folder}/KW Warriors-B-09: Boys 12-14")
     team_validator.validate()
