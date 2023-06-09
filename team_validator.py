@@ -1,10 +1,16 @@
 from id_validator.main import IDValidator
 import openpyxl
 from openpyxl.drawing.image import Image
+from openpyxl.styles import Font
 import csv
 import os
 
-base_folder = "2022"
+base_folder = "2023"
+
+TITLE_ROW_HEIGHT = 50
+DEFAULT_COLUMN_WIDTH = 40
+FONT_SIZE = 25
+IMAGE_DIMENSION = 400
 
 
 def get_name_and_dob_for_player(info_file) -> [str, str]:
@@ -27,9 +33,10 @@ def get_emails(info_file) -> [str]:
 
 
 class TeamValidator:
-    def __init__(self, data_path):
-        self.data_path = data_path
-        self.validator = IDValidator(data_path)
+    def __init__(self, team_name):
+        self.data_path = f"{base_folder}/{team_name}"
+        self.team_name = team_name
+        self.validator = IDValidator(f"{self.data_path}/data")
 
     def validate(self):
         validation_status_output_file = f"{self.data_path}/data/validation_status.csv"
@@ -58,7 +65,7 @@ class TeamValidator:
         self.create_report(validation_statuses)
 
     def create_report(self, validation_statuses: dict):
-        output_file = f"{self.data_path}/{self.data_path}-output.csv"
+        output_file = f"{self.data_path}/{self.team_name}-output.csv"
         emails = get_emails(output_file)
         print(emails)
 
@@ -74,13 +81,14 @@ class TeamValidator:
         worksheet['G1'] = "Email"
         worksheet['H1'] = "Headshot"
         worksheet['I1'] = "ID"
-        worksheet.column_dimensions['A'].width = 25
-        worksheet.column_dimensions['B'].width = 25
-        worksheet.column_dimensions['C'].width = 25
-        worksheet.column_dimensions['D'].width = 25
-        worksheet.column_dimensions['E'].width = 25
-        worksheet.column_dimensions['F'].width = 25
-        worksheet.column_dimensions['G'].width = 25
+        worksheet.column_dimensions['A'].width = DEFAULT_COLUMN_WIDTH
+        worksheet.column_dimensions['B'].width = DEFAULT_COLUMN_WIDTH
+        worksheet.column_dimensions['C'].width = DEFAULT_COLUMN_WIDTH
+        worksheet.column_dimensions['D'].width = DEFAULT_COLUMN_WIDTH
+        worksheet.column_dimensions['E'].width = DEFAULT_COLUMN_WIDTH
+        worksheet.column_dimensions['F'].width = DEFAULT_COLUMN_WIDTH
+        worksheet.column_dimensions['G'].width = DEFAULT_COLUMN_WIDTH
+        worksheet.row_dimensions[1].height = TITLE_ROW_HEIGHT
 
         for i, status in enumerate(validation_statuses):
             index = i + 2
@@ -90,10 +98,12 @@ class TeamValidator:
             worksheet[f'D{index}'] = status["name"]
 
             headshot_image = Image(f'{self.data_path}/data/{status["base_name"]}/headshot.jpg')
+            headshot_image.width, headshot_image.height = IMAGE_DIMENSION, IMAGE_DIMENSION
             worksheet.add_image(headshot_image, f'H{index}')
             worksheet.column_dimensions['H'].width = headshot_image.width * 0.140625
 
             govt_id_image = Image(f'{self.data_path}/data/{status["base_name"]}/id.jpg')
+            govt_id_image.width, govt_id_image.height = IMAGE_DIMENSION, IMAGE_DIMENSION
             worksheet.add_image(govt_id_image, f'I{index}')
             worksheet.column_dimensions['I'].width = govt_id_image.width * 0.140625
 
@@ -105,10 +115,30 @@ class TeamValidator:
 
             worksheet[f'G{index}'] = emails[int(status["base_name"])]
 
-            # save the workbook
-            workbook.save(f'{self.data_path}/{self.data_path}-report.xlsx')
+        font = Font(size=FONT_SIZE)
+        for row in workbook.active.iter_rows():
+            for cell in row:
+                cell.font = font
 
+        workbook.save(f'{self.data_path}/{self.team_name}-report.xlsx')
 
 if __name__ == '__main__':
-    team_validator = TeamValidator(f"{base_folder}/KW Warriors-B-09: Boys 12-14")
-    team_validator.validate()
+    team_names = [
+        "Afghan brothers-M-01: Mens 21+",
+        "Al-Azhar-M-88: Mens 35+",
+        "Aryana FC-B-06: Boys 15-17",
+        "Azaad FC-M-03: Mens 18-20",
+        "DVPANI-M-88: Mens 35+",
+        "Eagles FC-M-01: Mens 21+",
+        "Eagles Legend-M-88: Mens 35+",
+        "Eagles United-M-01: Mens 21+",
+        "Jaweedan FC-M-01: Mens 21+",
+        "MCFC-M-01: Mens 21+",
+        "Montreal Ballers-M-01: Mens 21+",
+        "Ontario FC-M-03: Mens 18-20",
+        "Veterans-M-73: Mens 50+",
+        "WTFC-W-05: Womens 18+"
+    ]
+    for team_name in team_names:
+        team_validator = TeamValidator(team_name)
+        team_validator.validate()

@@ -4,9 +4,9 @@ from datetime import datetime
 from download_images_from_iicanada import download_images
 from download_images_from_iicanada import Player, Team
 
-base_folder = "2022"
+base_folder = "2023"
 
-input_file = f'{base_folder}/gold_cup_2022__team_registration.csv'
+input_file = f'{base_folder}/gold_cup_2023__team_registration.csv'
 
 # Indexes at which the data begins. The Indexes before this are not useful.
 column_start_index = 9
@@ -32,7 +32,7 @@ def convert_date_of_birth(date_str):
         new_date_str = datetime.strftime(date_obj, '%Y/%m/%d')
     else:
         # invalid format
-        raise ValueError("Invalid date format. Use either '%m/%d/%Y' or '%Y-%m-%d'.")
+        raise ValueError(f"Invalid date format for {date_str}. Use either '%m/%d/%Y' or '%Y-%m-%d'.")
     return new_date_str
 
 
@@ -77,18 +77,18 @@ with open(input_file, 'r') as file:
 
         first_player_index = 42
         players = list[Player]()
-        for i in range(42, len(row) - 17, 18):
+        for i in range(first_player_index, len(row) - 18, 19):
             player_full_name = row[i]
             player_date_of_birth = row[i + 1]
             player_email_address = row[i + 2]
             player_phone_number = row[i + 3]
-            headshot = row[i + 12]
-            govt_id = row[i + 14]
-            waiver = row[i + 16]
+            headshot = row[i + 13]
+            govt_id = row[i + 15]
+            waiver = row[i + 17]
             if player_full_name not in ['', 'X']:
                 player = Player(
                     full_name=player_full_name,
-                    dob=player_date_of_birth,
+                    dob=convert_date_of_birth(player_date_of_birth),
                     email_address=player_email_address,
                     headshot=headshot,
                     govt_id=govt_id
@@ -112,12 +112,12 @@ with open(input_file, 'r') as file:
         # Append the processed row to the list of processed data
         processed_data.append(processed_row)
 
-        team = Team(name=f"{team_name}-{category}", category=category, players=players)
+        team = Team(name=team_name, category=category, players=players)
         teams.append(team)
 
         data_dir_for_teams_to_validate.append(f'{base_folder}/{team_name}-{category}')
 
-        output_file = f'{base_folder}/{team_name}-{category}/{team_name}-{category}-output.csv'\
+        output_file = f'{base_folder}/{team_name}-{category}/{team_name}-{category}-output.csv'
 
         if not os.path.exists(f"{base_folder}/{team_name}-{category}"):
             os.makedirs(f"{base_folder}/{team_name}-{category}")
@@ -131,4 +131,4 @@ with open(input_file, 'r') as file:
 
                 writer.writerow([team.name, 'FCB', player.full_name, player.email_address])
 
-# download_images(teams=teams)
+download_images(teams=teams)

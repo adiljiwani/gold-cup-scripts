@@ -9,7 +9,7 @@ import time
 from selenium.webdriver.common.action_chains import ActionChains
 import os
 
-base_folder = "2022"
+base_folder = "2023"
 
 
 class Player:
@@ -58,6 +58,9 @@ def download_images(teams: list[Team]):
     for team in teams:
         if not os.path.exists(team.name):
             os.makedirs(team.name)
+        else:
+            # Don't download team info if we already have it downloaded
+            continue
 
         data_path = f"{base_folder}/{team.name}-{team.category}/data"
         if not os.path.exists(data_path):
