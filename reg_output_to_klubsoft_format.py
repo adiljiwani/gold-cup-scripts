@@ -94,7 +94,7 @@ with open(input_file, 'r') as file:
                     govt_id=govt_id
                 )
                 players.append(player)
-                print(vars(player))
+                # print(vars(player))
         # Create a dictionary to store the processed data for this row
         processed_row = {
             'Team Name': team_name,
@@ -121,6 +121,7 @@ with open(input_file, 'r') as file:
 
         if not os.path.exists(f"{base_folder}/{team_name}-{category}"):
             os.makedirs(f"{base_folder}/{team_name}-{category}")
+            print(f"{team_name}")
 
         with open(output_file, 'w', newline='') as file:
             writer = csv.writer(file)

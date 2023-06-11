@@ -124,20 +124,8 @@ class TeamValidator:
 
 if __name__ == '__main__':
     team_names = [
-        "Afghan brothers-M-01: Mens 21+",
-        "Al-Azhar-M-88: Mens 35+",
-        "Aryana FC-B-06: Boys 15-17",
-        "Azaad FC-M-03: Mens 18-20",
-        "DVPANI-M-88: Mens 35+",
-        "Eagles FC-M-01: Mens 21+",
-        "Eagles Legend-M-88: Mens 35+",
-        "Eagles United-M-01: Mens 21+",
-        "Jaweedan FC-M-01: Mens 21+",
-        "MCFC-M-01: Mens 21+",
-        "Montreal Ballers-M-01: Mens 21+",
-        "Ontario FC-M-03: Mens 18-20",
-        "Veterans-M-73: Mens 50+",
-        "WTFC-W-05: Womens 18+"
+        "USS-M-03: Mens 18-20",
+        "11 Ballers-M-01: Mens 21+",
     ]
     for team_name in team_names:
         team_validator = TeamValidator(team_name)
