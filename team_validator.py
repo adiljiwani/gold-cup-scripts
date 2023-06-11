@@ -124,8 +124,7 @@ class TeamValidator:
 
 if __name__ == '__main__':
     team_names = [
-        "USS-M-03: Mens 18-20",
-        "11 Ballers-M-01: Mens 21+",
+        "Free Agents-Girls 15-17",
     ]
     for team_name in team_names:
         team_validator = TeamValidator(team_name)
